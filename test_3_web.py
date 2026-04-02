@@ -91,16 +91,13 @@ def compute_metrics(gps_df, imu_df):
     #Дистанція
     distance = total_distance(gps_df)
 
-    #Час польоту
     flight_time = gps_df.time.iloc[-1] - gps_df.time.iloc[0]
 
-    #Вертикальна швидкість
     dz = np.diff(gps_df.alt)
     dt = np.diff(gps_df.time)
     vertical_speed = dz / dt
     max_vertical_speed = np.max(np.abs(vertical_speed))
 
-    #Горизонтальна швидкість
     horizontal_speed = []
     for i in range(1, len(gps_df)):
         d = haversine(
@@ -114,14 +111,11 @@ def compute_metrics(gps_df, imu_df):
     horizontal_speed = np.array(horizontal_speed)
     max_horizontal_speed = np.max(horizontal_speed)
 
-    #Прискорення
     acc_mag = np.sqrt(imu_df.ax ** 2 + imu_df.ay ** 2 + imu_df.az ** 2)
     max_acc = np.max(acc_mag)
 
-    #Швидкість з IMU (інтегрування)
     velocity_from_imu = integrate_acceleration(acc_mag.values, imu_df.time.values)
 
-    #Максимальний набір висоти
     max_alt_gain = gps_df.alt.max() - gps_df.alt.min()
 
     return {
