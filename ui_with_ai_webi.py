@@ -119,7 +119,7 @@ def plot_3d_trajectory(gps_df):
 
 # --- ФУНКЦІЯ ШІ (Має бути ДО основного коду UI) ---
 def analyze_flight_with_llm(metrics_dict):
-    st.subheader("🤖 AI-Експерт: Аналіз місії (LLM)")
+    st.subheader(" AI-Експерт: Аналіз місії (LLM)")
     
     try:
         # Правильний спосіб прочитати твій файл .toml у Python
@@ -139,7 +139,8 @@ def analyze_flight_with_llm(metrics_dict):
 
     prompt = f"""
     Ти — суворий експерт з авіаційної безпеки та розслідування інцидентів з БПЛА (дронами).
-    Твоє завдання: проаналізувати метрики польоту з бортового самописця Ardupilot і написати короткий звіт (3-4 речення).
+    Твоє завдання: проаналізувати метрики польоту з бортового самописця Ardupilot і написати короткий звіт (3-4 речення) у форматі - 
+    кожний показник виведи з нового рядка із його коротким описом і в кінці виведи загальний висновок.
     
     Ось дані цього польоту:
     - Пройдена дистанція: {metrics_dict['distance (m)']:.2f} метрів
@@ -164,7 +165,7 @@ def analyze_flight_with_llm(metrics_dict):
             st.error(f"Помилка при зв'язку з LLM: {e}")
 
 # --- ОСНОВНИЙ UI STREAMLIT ---
-st.title("🚁 Drone Flight Analyzer")
+st.title(" Drone Flight Analyzer")
 
 file = st.file_uploader("Upload ArduPilot .BIN", type=["bin"])
 
@@ -176,7 +177,7 @@ if file:
     st.success(f"Оброблено рядків -> GPS: {len(gps)} | IMU: {len(imu)}")
 
     if len(gps) > 0 and len(imu) > 0:
-        st.subheader("📊 Flight Metrics")
+        st.subheader(" Flight Metrics")
         m = compute_metrics(gps, imu)
 
         if m and "error" not in m:
@@ -197,7 +198,7 @@ if file:
         else:
             st.warning("Недостатньо даних для обчислення метрик.")
 
-        st.subheader("🗺️ 3D Trajectory")
+        st.subheader(" 3D Trajectory")
         fig = plot_3d_trajectory(gps)
         if fig:
             st.plotly_chart(fig, use_container_width=True)

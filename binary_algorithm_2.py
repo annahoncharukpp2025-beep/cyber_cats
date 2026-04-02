@@ -2,12 +2,8 @@ from pymavlink import mavutil
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-<<<<<<< HEAD:binary_algorithm_2.py
 import plotly.io as pio
-
-=======
 import tempfile
->>>>>>> e7121edc81a0fd0d051ec799262c750144e05004:test_3_web.py
 
 #Парсування бінарних логів
 def parse_log(file_path):
@@ -24,14 +20,18 @@ def parse_log(file_path):
         msg_type = msg.get_type()
         data = msg.to_dict()
 
-        if msg_type.startswith("GPS"):
-            if all(k in data for k in ["Lat", "Lng", "Alt"]):
+        if msg_type == "GPS":
+            lat = getattr(msg, 'Lat', None)
+            lng = getattr(msg, 'Lng', getattr(msg, 'Lon', None))
+            alt = getattr(msg, 'Alt', None)
+            spd = getattr(msg, 'Spd', 0)
+            if lat is not None and lng is not None and alt is not None:
                 gps_data.append({
                     "time": data.get("TimeUS", 0) / 1e6,
-                    "lat": data["Lat"] / 1e7,
-                    "lon": data["Lng"] / 1e7,
-                    "alt": data["Alt"] / 1000,
-                    "speed": data.get("Spd", 0)
+                    "lat": lat / 1e7,        # int32 → degrees
+                    "lon": lng / 1e7,        # int32 → degrees  
+                    "alt": alt,              # вже в метрах (float)
+                    "speed": spd             # м/с
                 })
 
         elif "IMU" in msg_type:
@@ -226,4 +226,4 @@ if file:
         fig = plot_3d_trajectory(gps)
         if fig:
             st.plotly_chart(fig, use_container_width=True)
->>>>>>> e7121edc81a0fd0d051ec799262c750144e05004:test_3_web.py
+
