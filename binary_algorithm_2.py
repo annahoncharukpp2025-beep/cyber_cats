@@ -2,8 +2,12 @@ from pymavlink import mavutil
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
+<<<<<<< HEAD:binary_algorithm_2.py
 import plotly.io as pio
 
+=======
+import tempfile
+>>>>>>> e7121edc81a0fd0d051ec799262c750144e05004:test_3_web.py
 
 #Парсування бінарних логів
 def parse_log(file_path):
@@ -20,7 +24,6 @@ def parse_log(file_path):
         msg_type = msg.get_type()
         data = msg.to_dict()
 
-        #GPS дані
         if msg_type.startswith("GPS"):
             if all(k in data for k in ["Lat", "Lng", "Alt"]):
                 gps_data.append({
@@ -31,7 +34,6 @@ def parse_log(file_path):
                     "speed": data.get("Spd", 0)
                 })
 
-        #IMU дані
         elif "IMU" in msg_type:
             if all(k in data for k in ["AccX", "AccY", "AccZ"]):
                 imu_data.append({
@@ -41,10 +43,15 @@ def parse_log(file_path):
                     "az": data["AccZ"]
                 })
 
-    gps_df = pd.DataFrame(gps_data)
-    imu_df = pd.DataFrame(imu_data)
+    log.close()
+    return pd.DataFrame(gps_data), pd.DataFrame(imu_data)
 
-    return gps_df, imu_df
+def parse_log_from_bytes(file_bytes):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".bin") as tmp:
+        tmp.write(file_bytes)
+        tmp_path = tmp.name
+    gps, imu = parse_log(tmp_path)
+    return gps, imu
 
 
 #Функція Haversine
@@ -88,16 +95,13 @@ def compute_metrics(gps_df, imu_df):
     #Дистанція
     distance = total_distance(gps_df)
 
-    #Час польоту
     flight_time = gps_df.time.iloc[-1] - gps_df.time.iloc[0]
 
-    #Вертикальна швидкість
     dz = np.diff(gps_df.alt)
     dt = np.diff(gps_df.time)
     vertical_speed = dz / dt
     max_vertical_speed = np.max(np.abs(vertical_speed))
 
-    #Горизонтальна швидкість
     horizontal_speed = []
     for i in range(1, len(gps_df)):
         d = haversine(
@@ -111,14 +115,11 @@ def compute_metrics(gps_df, imu_df):
     horizontal_speed = np.array(horizontal_speed)
     max_horizontal_speed = np.max(horizontal_speed)
 
-    #Прискорення
     acc_mag = np.sqrt(imu_df.ax ** 2 + imu_df.ay ** 2 + imu_df.az ** 2)
     max_acc = np.max(acc_mag)
 
-    #Швидкість з IMU (інтегрування)
     velocity_from_imu = integrate_acceleration(acc_mag.values, imu_df.time.values)
 
-    #Максимальний набір висоти
     max_alt_gain = gps_df.alt.max() - gps_df.alt.min()
 
     return {
@@ -191,15 +192,38 @@ for file in files:
 
     gps_df, imu_df = parse_log(file)
 
-    print("GPS DATA:")
-    print(gps_df.head())
+if file:
+    gps, imu = parse_log_from_bytes(file.read())
 
-    print("IMU DATA:")
-    print(imu_df.head())
+    st.success(f"GPS: {len(gps)} | IMU: {len(imu)}")
 
-    metrics = compute_metrics(gps_df, imu_df)
-    print("\tFlight Metrics")
-    for k, v in metrics.items():
-        print(f"{k}: {v:.2f}")
+    if not gps.empty:
+        st.subheader("GPS Data")
+        st.dataframe(gps.head(10))
 
-    plot_3d_trajectory(gps_df)
+    if not imu.empty:
+        st.subheader("IMU Data")
+        st.dataframe(imu.head(10))
+
+    if not gps.empty:
+        st.subheader("Flight Metrics")
+        m = compute_metrics(gps, imu)
+
+        if "error" not in m:
+            col1, col2, col3 = st.columns(3)
+
+            col1.metric("Distance (m)", f"{m['distance (m)']:.2f}")
+            col1.metric("Flight Time (s)", f"{m['flight_time (s)']:.2f}")
+
+            col2.metric("Max Horizontal Speed", f"{m['max_horizontal_speed (m/s)']:.2f}")
+            col2.metric("Max Vertical Speed", f"{m['max_vertical_speed (m/s)']:.2f}")
+
+            col3.metric("Max Acceleration", f"{m['max_acceleration (m/s^2)']:.2f}")
+            col3.metric("Altitude Gain", f"{m['max_altitude_gain (m)']:.2f}")
+
+    if not gps.empty:
+        st.subheader("3D Trajectory")
+        fig = plot_3d_trajectory(gps)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+>>>>>>> e7121edc81a0fd0d051ec799262c750144e05004:test_3_web.py
