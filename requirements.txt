@@ -1,0 +1,7 @@
+pymavlink
+pandas
+numpy
+plotly
+google.genai
+streamlit
+tomllib

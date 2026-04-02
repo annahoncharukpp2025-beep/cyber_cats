@@ -1,8 +1,9 @@
-import streamlit as st
+from pymavlink import mavutil
 import pandas as pd
 import numpy as np
-from pymavlink import mavutil
 import plotly.graph_objects as go
+import plotly.io as pio
+
 
 #Парсування бінарних логів
 def parse_log(file_path):
@@ -151,8 +152,11 @@ def wgs84_to_enu(gps_df):
 #3D візуалізація
 def plot_3d_trajectory(gps_df):
 
+    pio.renderers.default = "browser"
+
     if len(gps_df) < 2:
-        return None
+        print("Недостатньо точок")
+        return
 
     x, y, z = wgs84_to_enu(gps_df)
 
@@ -173,61 +177,29 @@ def plot_3d_trajectory(gps_df):
         line=dict(color=speed, colorscale='Earth', width=5)
     )])
 
-    return fig
+    fig.show()
+
+#Обробка файлів
+files = [
+    "00000001.BIN",
+    "00000019.BIN"
+]
 
 
-#UI
-st.title("Drone Flight Analyzer")
+for file in files:
+    print(f"\n\tFILE: {file}")
 
-file = st.file_uploader("Upload ArduPilot .BIN", type=["bin"])
+    gps_df, imu_df = parse_log(file)
 
-if file:
-    with open("temp.bin", "wb") as f:
-        f.write(file.read())
+    print("GPS DATA:")
+    print(gps_df.head())
 
+    print("IMU DATA:")
+    print(imu_df.head())
 
-    gps, imu = parse_log("temp.bin")
+    metrics = compute_metrics(gps_df, imu_df)
+    print("\tFlight Metrics")
+    for k, v in metrics.items():
+        print(f"{k}: {v:.2f}")
 
-    st.success(f"GPS: {len(gps)} | IMU: {len(imu)}")
-
-
-    if len(gps) > 0:
-        st.subheader("GPS Data")
-        st.dataframe(gps.head(10))
-
-
-    if len(imu) > 0:
-        st.subheader("IMU Data")
-        st.dataframe(imu.head(10))
-
-
-    if len(gps) > 0:
-        st.subheader("Flight Metrics")
-
-        m = compute_metrics(gps, imu)
-
-        if m and "error" not in m:
-            col1, col2, col3 = st.columns(3)
-
-            col1.metric("Distance (m)", f"{m['distance (m)']:.2f}")
-            col1.metric("Flight Time (s)", f"{m['flight_time (s)']:.2f}")
-
-            col2.metric("Max Horizontal Speed", f"{m['max_horizontal_speed (m/s)']:.2f}")
-            col2.metric("Max Vertical Speed", f"{m['max_vertical_speed (m/s)']:.2f}")
-
-            col3.metric("Max Acceleration", f"{m['max_acceleration (m/s^2)']:.2f}")
-            col3.metric("Altitude Gain", f"{m['max_altitude_gain (m)']:.2f}")
-
-        else:
-            st.warning("Недостатньо даних для метрик")
-
-
-    if len(gps) > 0:
-        st.subheader("3D Trajectory")
-
-        fig = plot_3d_trajectory(gps)
-
-        if fig:
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Недостатньо точок для 3D графіка")
+    plot_3d_trajectory(gps_df)
