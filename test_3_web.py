@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from pymavlink import mavutil
 import plotly.graph_objects as go
+import tempfile
 
 #Парсування бінарних логів
 def parse_log(file_path):
@@ -19,7 +20,6 @@ def parse_log(file_path):
         msg_type = msg.get_type()
         data = msg.to_dict()
 
-        #GPS дані
         if msg_type.startswith("GPS"):
             if all(k in data for k in ["Lat", "Lng", "Alt"]):
                 gps_data.append({
@@ -30,7 +30,6 @@ def parse_log(file_path):
                     "speed": data.get("Spd", 0)
                 })
 
-        #IMU дані
         elif "IMU" in msg_type:
             if all(k in data for k in ["AccX", "AccY", "AccZ"]):
                 imu_data.append({
@@ -40,10 +39,15 @@ def parse_log(file_path):
                     "az": data["AccZ"]
                 })
 
-    gps_df = pd.DataFrame(gps_data)
-    imu_df = pd.DataFrame(imu_data)
+    log.close()
+    return pd.DataFrame(gps_data), pd.DataFrame(imu_data)
 
-    return gps_df, imu_df
+def parse_log_from_bytes(file_bytes):
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".bin") as tmp:
+        tmp.write(file_bytes)
+        tmp_path = tmp.name
+    gps, imu = parse_log(tmp_path)
+    return gps, imu
 
 
 #Функція Haversine
@@ -182,31 +186,23 @@ st.title("Drone Flight Analyzer")
 file = st.file_uploader("Upload ArduPilot .BIN", type=["bin"])
 
 if file:
-    with open("temp.bin", "wb") as f:
-        f.write(file.read())
-
-
-    gps, imu = parse_log("temp.bin")
+    gps, imu = parse_log_from_bytes(file.read())
 
     st.success(f"GPS: {len(gps)} | IMU: {len(imu)}")
 
-
-    if len(gps) > 0:
+    if not gps.empty:
         st.subheader("GPS Data")
         st.dataframe(gps.head(10))
 
-
-    if len(imu) > 0:
+    if not imu.empty:
         st.subheader("IMU Data")
         st.dataframe(imu.head(10))
 
-
-    if len(gps) > 0:
+    if not gps.empty:
         st.subheader("Flight Metrics")
-
         m = compute_metrics(gps, imu)
 
-        if m and "error" not in m:
+        if "error" not in m:
             col1, col2, col3 = st.columns(3)
 
             col1.metric("Distance (m)", f"{m['distance (m)']:.2f}")
@@ -218,16 +214,8 @@ if file:
             col3.metric("Max Acceleration", f"{m['max_acceleration (m/s^2)']:.2f}")
             col3.metric("Altitude Gain", f"{m['max_altitude_gain (m)']:.2f}")
 
-        else:
-            st.warning("Недостатньо даних для метрик")
-
-
-    if len(gps) > 0:
+    if not gps.empty:
         st.subheader("3D Trajectory")
-
         fig = plot_3d_trajectory(gps)
-
         if fig:
             st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Недостатньо точок для 3D графіка")
