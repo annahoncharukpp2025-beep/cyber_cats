@@ -252,7 +252,7 @@ def analyze_flight_with_llm(metrics_dict):
         except Exception as e:
             st.error(f"Error conection with LLM: {e}")
 
-st.markdown("<br>", unsafe_allow_html=True) # Додаємо трохи вільного місця
+st.markdown("<br>", unsafe_allow_html=True) 
 if metrics:
     analyze_flight_with_llm(metrics) 
 
@@ -261,7 +261,7 @@ c1, c2, c3 = st.columns(3)
 with c1:
     if not gps.empty:
         st.download_button("Download GPS CSV", data=gps.to_csv(index=False).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_gps.csv", mime="text/csv")
-with c2:
+with c2:    
     if not imu.empty:
         st.download_button("Download IMU CSV", data=imu.to_csv(index=False).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_imu.csv", mime="text/csv")
 with c3:
