@@ -19,14 +19,15 @@ def fmt(v: float, digits: int = 2) -> str:
     return f"{v:.{digits}f}"
 
 
-def metric_card(label: str, value: str, unit: str = "") -> str:
+def render_metric_card(container, label: str, value: str, unit: str = "") -> None:
     unit_html = f"<span class='unit'>{unit}</span>" if unit else ""
-    return f'''
-    <div class="metric-card">
+    container.markdown(
+        f'''<div class="metric-card">
         <div class="metric-label">{label}</div>
         <div class="metric-value">{value}{unit_html}</div>
-    </div>
-    '''
+        </div>''',
+        unsafe_allow_html=True,
+    )
 
 
 def make_summary_text(metrics, gps_meta, imu_meta) -> str:
@@ -115,7 +116,6 @@ st.markdown('''
 .hero h1 { font-size: 3.2rem; line-height: 1.0; margin-bottom: 0.5rem; }
 .hero p { color: #9CA3AF; margin-top: 0; }
 .success-box { background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.35); padding: 1rem 1.2rem; border-radius: 14px; margin: 1rem 0 1.5rem 0; font-size: 1.05rem; }
-.metric-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 8px; margin-bottom: 20px; }
 .metric-card { background: #0F172A; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; min-height: 130px; }
 .metric-label { color: #CBD5E1; font-size: 1rem; margin-bottom: 10px; }
 .metric-value { color: #F8FAFC; font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
@@ -160,17 +160,15 @@ st.markdown(
 )
 
 st.markdown('<div class="section-title">Flight Metrics</div>', unsafe_allow_html=True)
-cards_html = f'''
-<div class="metric-grid">
-    {metric_card("Distance", fmt(metrics.get("distance_m", np.nan)), "m")}
-    {metric_card("Max Horizontal Speed", fmt(metrics.get("max_horizontal_speed_mps", np.nan)), "m/s")}
-    {metric_card("Max Acceleration", fmt(metrics.get("max_acceleration_mps2", np.nan)), "m/s²")}
-    {metric_card("Flight Time", fmt(metrics.get("flight_time_s", np.nan)), "s")}
-    {metric_card("Max Vertical Speed", fmt(metrics.get("max_vertical_speed_mps", np.nan)), "m/s")}
-    {metric_card("Altitude Gain", fmt(metrics.get("altitude_gain_m", np.nan)), "m")}
-</div>
-'''
-st.markdown(cards_html, unsafe_allow_html=True)
+row1 = st.columns(3)
+render_metric_card(row1[0], "Distance", fmt(metrics.get("distance_m", np.nan)), "m")
+render_metric_card(row1[1], "Max Horizontal Speed", fmt(metrics.get("max_horizontal_speed_mps", np.nan)), "m/s")
+render_metric_card(row1[2], "Max Acceleration", fmt(metrics.get("max_acceleration_mps2", np.nan)), "m/s²")
+
+row2 = st.columns(3)
+render_metric_card(row2[0], "Flight Time", fmt(metrics.get("flight_time_s", np.nan)), "s")
+render_metric_card(row2[1], "Max Vertical Speed", fmt(metrics.get("max_vertical_speed_mps", np.nan)), "m/s")
+render_metric_card(row2[2], "Altitude Gain", fmt(metrics.get("altitude_gain_m", np.nan)), "m")
 
 st.markdown(
     f'''
