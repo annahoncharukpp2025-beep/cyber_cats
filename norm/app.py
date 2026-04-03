@@ -39,23 +39,24 @@ def make_summary_text(metrics, gps_meta, imu_meta) -> str:
     again = metrics.get("altitude_gain_m", np.nan)
 
     if not np.isnan(distance):
-        parts.append(f"Політова дистанція за GPS: {distance:.1f} м.")
+        parts.append(f"Flight distance by GPS: {distance:.1f} m.")
     if not np.isnan(flight_time):
-        parts.append(f"Тривалість GPS-ділянки: {flight_time:.2f} с.")
+        parts.append(f"GPS section duration: {flight_time:.2f} s.")
     if not np.isnan(hspeed):
-        parts.append(f"Максимальна горизонтальна швидкість: {hspeed:.2f} м/с.")
+        parts.append(f"Maximum horizontal speed: {hspeed:.2f} m/s.")
     if not np.isnan(vspeed):
-        parts.append(f"Максимальна вертикальна швидкість: {vspeed:.2f} м/с.")
+        parts.append(f"Maximum vertical speed: {vspeed:.2f} m/s.")
     if not np.isnan(again):
-        parts.append(f"Максимальний набір висоти: {again:.2f} м.")
+        parts.append(f"Maximum height gain: {again:.2f} m.")
 
     gfs = gps_meta.get("gps_sampling_hz", np.nan)
     if not np.isnan(gfs):
-        parts.append(f"GPS частота семплювання: близько {gfs:.2f} Гц.")
+        parts.append(f"GPS sampling rate: approx. {gfs:.2f} Hz.")
     ifs = imu_meta.get("imu_sampling_hz_empirical", np.nan)
     if not np.isnan(ifs):
-        parts.append(f"IMU частота семплювання: близько {ifs:.2f} Гц.")
-    return " ".join(parts) if parts else "Дані успішно оброблені."
+        parts.append(f"IMU sampling rate: approx. {ifs:.2f} Hz.")
+    return "\n".join([f"- {p}" for p in parts]) if parts else "Data processed successfully."
+    st.text(make_summary_text(metrics, gps_meta, imu_meta))
 
 
 def build_3d_figure(gps):
