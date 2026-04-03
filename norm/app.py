@@ -132,9 +132,9 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-uploaded = st.file_uploader("", type=["bin", "BIN"])
+uploaded = st.file_uploader("", type=["bin"])
 if uploaded is None:
-    st.info("You'l get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
+    st.info("You'll get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
     st.stop()
 
 with tempfile.NamedTemporaryFile(delete=False, suffix=".BIN") as tmp:
