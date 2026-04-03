@@ -9,7 +9,8 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
+import tomllib
+import google.generativeai as genai
 from telemetry_core import process_bin_file
 
 
@@ -128,13 +129,13 @@ st.markdown('''
 st.markdown('''
 <div class="hero">
     <h1>Drone Flight Analyzer</h1>
-    <p>Завантаж ArduPilot .BIN і одразу отримай метрики, 3D-траєкторію та акуратні графіки.</p>
+    <p>Download the ArduPilot .BIN and get metrics, 3D trajectory, and neat graphs right away</p>
 </div>
 ''', unsafe_allow_html=True)
 
 uploaded = st.file_uploader("Upload ArduPilot .BIN", type=["bin", "BIN"])
 if uploaded is None:
-    st.info("Завантаж `.BIN` файл, щоб побачити аналіз.")
+    st.info("Download the .BIN file to view the analysis.")
     st.stop()
 
 with tempfile.NamedTemporaryFile(delete=False, suffix=".BIN") as tmp:
@@ -222,6 +223,56 @@ with tab4:
         file_name=f"{Path(uploaded.name).stem}_summary.json",
         mime="application/json",
     )
+
+def analyze_flight_with_llm(metrics_dict):
+    st.subheader(" AI: Flight analysis (LLM)")
+    
+    try:
+        with open("api_key.toml", "rb") as f:
+            config = tomllib.load(f)
+            api_key = config["GEMINI_API_KEY"]
+            
+        genai.configure(api_key=api_key)
+    except FileNotFoundError:
+        st.warning("Файл api_key.toml не знайдено у папці з проєктом.")
+        return
+    except Exception as e:
+        st.warning(f"Помилка читання ключа. Перевір формат api_key.toml. Деталі: {e}")
+        return
+
+    model = genai.GenerativeModel('gemini-2.5-flash')
+
+    prompt = f"""
+    Ти —  експерт з аналізу польоту БПЛА.
+    Твоє завдання: проаналізувати метрики польоту з бортового самописця Ardupilot і написати короткий позитивний звіт (3-4 речення).
+    Відповідай коротко - по суті - кожний показник виводь тезами з нового рядка та з коротким описом - аналізом (3-4 слова) і 
+    після всього висновок польоту.
+    
+    Ось дані цього польоту:
+    - Пройдена дистанція: {metrics_dict.get('distance_m', 0):.2f} метрів
+    - Час польоту: {metrics_dict.get('flight_time_s', 0):.1f} секунд
+    - Макс. горизонтальна швидкість: {metrics_dict.get('max_horizontal_speed_mps', 0):.2f} м/с
+    - Макс. вертикальна швидкість: {metrics_dict.get('max_vertical_speed_mps', 0):.2f} м/с
+    - Макс. прискорення (перевантаження): {metrics_dict.get('max_acceleration_mps2', 0):.2f} м/с²
+    - Загальний набір висоти: {metrics_dict.get('altitude_gain_m', 0):.2f} метрів
+
+    Правила аналізу:
+    1. Якщо прискорення > 30 м/с², це можливе зіткнення або дуже жорстка посадка. Вкажи на це!
+    2. Якщо вертикальна швидкість > 10 м/с, це може бути різке падіння (штопор).
+    3. Зроби висновок про загальну плавність та безпеку польоту.
+    4. Відповідай українською мовою, професійним тоном для звичайного користувача.
+    """
+
+    with st.spinner("AI analyzes..."):
+        try:
+            response = model.generate_content(prompt)
+            st.info(response.text)
+        except Exception as e:
+            st.error(f"Error conection with LLM: {e}")
+
+st.markdown("<br>", unsafe_allow_html=True) # Додаємо трохи вільного місця
+if metrics:
+    analyze_flight_with_llm(metrics) 
 
 st.markdown("---")
 c1, c2, c3 = st.columns(3)
