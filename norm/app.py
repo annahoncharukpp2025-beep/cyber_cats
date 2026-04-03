@@ -114,13 +114,13 @@ st.markdown('''
 <style>
 .block-container { max-width: 1280px; padding-top: 32px; padding-bottom: 32px; }
 .hero h1 { font-size: 50px; line-height: 1.0; margin-bottom: 8px; text-align: center; }
-.hero p { color: #9CA3AF; margin-top: 0; margin-bottom: -20px; }
-.metric-card { background: rgba(205, 237, 255, 0.5); border: 1px rgba(205, 237, 255, 0.8); border-radius: 18px; padding: 20px; min-height: 130px; min-width: 250px; justify-self: center; text-align: center; padding-right: 50px; padding-left: 50px; margin-bottom: 50px}  
-.metric-label { color: rgba(0, 45, 100, 0.8); font-size: 15px; margin-bottom: 10px; }
-.metric-value { color: rgba(0, 45, 100, 1); font-size: 35px; font-weight: 700; line-height: 1.1; }
-.unit { font-size: 16px; rgba(0, 45, 100, 0.8); margin-left: 6px; }
-.small-note { color: rgba(110, 150, 190, 1); font-size: 16px; margin-top: 35px; margin-bottom: 20px;}
-.section-title { color: rgba(0, 45, 80, 1); font-size: 32px; font-weight: 700; margin-top: 24px; margin-bottom: 10px; padding-right: -20px; justify-self: center;}
+.hero p { margin-top: 0; margin-bottom: -20px; }
+.metric-card { background: rgba(125, 150, 175, 1); border: 1px rgba(205, 237, 255, 0.8); border-radius: 18px; padding: 20px; min-height: 130px; min-width: 250px; justify-self: center; text-align: center; padding-right: 50px; padding-left: 50px; margin-bottom: 50px}  
+.metric-label { font-size: 15px; margin-bottom: 10px; }
+.metric-value { font-size: 35px; font-weight: 700; line-height: 1.1; }
+.unit { font-size: 16px; margin-left: 6px; }
+.small-note { color: rgba(125, 150, 175, 1); font-size: 16px; margin-top: 35px; margin-bottom: 20px;}
+.section-title { font-size: 32px; font-weight: 700; margin-top: 24px; margin-bottom: 10px; padding-right: -20px; justify-self: center;}
 </style>
 ''', unsafe_allow_html=True)
 
