@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import tempfile
 from pathlib import Path
-
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
