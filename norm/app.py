@@ -127,7 +127,7 @@ st.markdown('''
 st.markdown('''
 <div class="hero">
     <h1>Drone Flight Analyzer</h1>
-    <p>Download the ArduPilot .BIN file  </p>
+    <p>Upload the ArduPilot binary file  </p>
 </div>
 ''', unsafe_allow_html=True)
 
