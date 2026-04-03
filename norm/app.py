@@ -131,9 +131,9 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-uploaded = st.file_uploader("", type=["bin", "BIN"])
+uploaded = st.file_uploader("", type=["bin"])
 if uploaded is None:
-    st.info("You'l get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
+    st.info("You'll get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
     st.stop()
 
 with tempfile.NamedTemporaryFile(delete=False, suffix=".BIN") as tmp:
@@ -251,7 +251,7 @@ def analyze_flight_with_llm(metrics_dict):
         except Exception as e:
             st.error(f"Error conection with LLM: {e}")
 
-st.markdown("<br>", unsafe_allow_html=True) # Додаємо трохи вільного місця
+st.markdown("<br>", unsafe_allow_html=True) 
 if metrics:
     analyze_flight_with_llm(metrics) 
 
@@ -260,7 +260,7 @@ c1, c2, c3 = st.columns(3)
 with c1:
     if not gps.empty:
         st.download_button("Download GPS CSV", data=gps.to_csv(index=False).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_gps.csv", mime="text/csv")
-with c2:
+with c2:    
     if not imu.empty:
         st.download_button("Download IMU CSV", data=imu.to_csv(index=False).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_imu.csv", mime="text/csv")
 with c3:
