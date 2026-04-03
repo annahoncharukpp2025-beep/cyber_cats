@@ -120,7 +120,6 @@ st.markdown('''
 .metric-label { font-size: 15px; margin-bottom: 10px; }
 .metric-value { font-size: 35px; font-weight: 700; line-height: 1.1; }
 .unit { font-size: 16px; margin-left: 6px; }
-.small-note { color: rgba(125, 150, 175, 1); font-size: 16px; margin-top: 35px; margin-bottom: 20px;}
 .section-title { font-size: 32px; font-weight: 700; margin-top: 24px; margin-bottom: 10px; padding-right: -20px; justify-self: center;}
 </style>
 ''', unsafe_allow_html=True)
@@ -161,15 +160,6 @@ render_metric_card(row2[0], "Flight Time", fmt(metrics.get("flight_time_s", np.n
 render_metric_card(row2[1], "Max Vertical Speed", fmt(metrics.get("max_vertical_speed_mps", np.nan)), "m/s")
 render_metric_card(row2[2], "Altitude Gain", fmt(metrics.get("altitude_gain_m", np.nan)), "m")
 
-st.markdown(
-    f'''
-    <div class="small-note">
-        GPS ~ {fmt(gps_meta.get("gps_sampling_hz", np.nan), 2)} Hz &nbsp;&nbsp;|&nbsp;&nbsp;
-        IMU ~ {fmt(imu_meta.get("imu_sampling_hz_empirical", np.nan), 2)} Hz
-    </div>
-    ''',
-    unsafe_allow_html=True,
-)
 
 tab1, tab2, tab3 = st.tabs(["3D Trajectory", "Raw Data", "Summary"])
 
@@ -216,33 +206,33 @@ def analyze_flight_with_llm(metrics_dict):
             
         genai.configure(api_key=api_key)
     except FileNotFoundError:
-        st.warning("Файл api_key.toml не знайдено у папці з проєктом.")
+        st.warning("File api_key.toml not found in project folder.")
         return
     except Exception as e:
-        st.warning(f"Помилка читання ключа. Перевір формат api_key.toml. Деталі: {e}")
+        st.warning(f"Reading key error. Check file extension of api_key.toml. Details: {e}")
         return
 
     model = genai.GenerativeModel('gemini-2.5-flash')
 
     prompt = f"""
-    Ти —  експерт з аналізу польоту БПЛА.
-    Твоє завдання: проаналізувати метрики польоту з бортового самописця Ardupilot і написати короткий позитивний звіт (3-4 речення).
-    Відповідай коротко - по суті - кожний показник виводь тезами з нового рядка та з коротким описом - аналізом (3-4 слова) і 
-    після всього висновок польоту.
-    
-    Ось дані цього польоту:
-    - Пройдена дистанція: {metrics_dict.get('distance_m', 0):.2f} метрів
-    - Час польоту: {metrics_dict.get('flight_time_s', 0):.1f} секунд
-    - Макс. горизонтальна швидкість: {metrics_dict.get('max_horizontal_speed_mps', 0):.2f} м/с
-    - Макс. вертикальна швидкість: {metrics_dict.get('max_vertical_speed_mps', 0):.2f} м/с
-    - Макс. прискорення (перевантаження): {metrics_dict.get('max_acceleration_mps2', 0):.2f} м/с²
-    - Загальний набір висоти: {metrics_dict.get('altitude_gain_m', 0):.2f} метрів
+    You are an expert in UAV flight analysis.
+    Your task is to analyse the flight metrics from the Ardupilot flight recorder and write a brief positive report (3–4 sentences).
+    Keep your answers brief and to the point – for each indicator, state the key points on a new line, followed by a short description or analysis (3–4 words), and 
+    finish with an overall conclusion on the flight.
 
-    Правила аналізу:
-    1. Якщо прискорення > 30 м/с², це можливе зіткнення або дуже жорстка посадка. Вкажи на це!
-    2. Якщо вертикальна швидкість > 10 м/с, це може бути різке падіння (штопор).
-    3. Зроби висновок про загальну плавність та безпеку польоту.
-    4. Відповідай українською мовою, професійним тоном для звичайного користувача.
+    Here are the details of this flight:
+    - Distance travelled: {metrics_dict.get('distance_m', 0):.2f} metres
+    - Flight time: {metrics_dict.get('flight_time_s', 0):.1f} seconds
+    - Max. horizontal speed: {metrics_dict.get('max_horizontal_speed_mps', 0):.2f} m/s
+    - Max. vertical speed: {metrics_dict.get('max_vertical_speed_mps', 0):.2f} m/s
+    - Max. acceleration (g-force): {metrics_dict.get('max_acceleration_mps2', 0):.2f} m/s²
+    - Total altitude gain: {metrics_dict.get('altitude_gain_m', 0):.2f} metres
+
+    Analysis rules:
+    1. If acceleration > 30 m/s², this indicates a possible collision or a very hard landing. Flag this!
+    2. If vertical velocity > 10 m/s, this may indicate a steep descent (spin).
+    3. Draw a conclusion regarding the overall smoothness and safety of the flight.
+    4. Respond in Ukrainian, using a professional tone suitable for the general public.
     """
 
     with st.spinner("AI analyzes..."):
