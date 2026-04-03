@@ -116,12 +116,12 @@ st.markdown('''
 .hero h1 { font-size: 3.2rem; line-height: 1.0; margin-bottom: 0.5rem; }
 .hero p { color: #9CA3AF; margin-top: 0; }
 .success-box { background: rgba(34, 197, 94, 0.16); border: 1px solid rgba(34, 197, 94, 0.35); padding: 1rem 1.2rem; border-radius: 14px; margin: 1rem 0 1.5rem 0; font-size: 1.05rem; }
-.metric-card { background: #0F172A; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; min-height: 130px; }
+.metric-card { background: #0F172A; border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; min-height: 130px; min-width: 250px; justify-self: center; padding-right: 50px; padding-left: 50px; margin-bottom: 50px}  
 .metric-label { color: #CBD5E1; font-size: 1rem; margin-bottom: 10px; }
 .metric-value { color: #F8FAFC; font-size: 2.4rem; font-weight: 700; line-height: 1.1; }
 .unit { font-size: 1rem; color: #94A3B8; margin-left: 0.35rem; }
-.small-note { color: #94A3B8; font-size: 0.95rem; margin-top: -8px; margin-bottom: 20px; }
-.section-title { font-size: 2rem; font-weight: 700; margin-top: 24px; margin-bottom: 10px; }
+.small-note { color: #94A3B8; font-size: 0.95rem; margin-top: 35px; margin-bottom: 20px;}
+.section-title { font-size: 2rem; font-weight: 700; margin-top: 24px; margin-bottom: 10px; padding-right: -20px; justify-self: center;}
 </style>
 ''', unsafe_allow_html=True)
 
