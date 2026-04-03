@@ -1,0 +1,6 @@
+streamlit
+pymavlink
+pandas
+numpy
+plotly
+pyarrow
