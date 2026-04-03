@@ -165,7 +165,7 @@ tab1, tab2, tab3 = st.tabs(["3D Trajectory", "Raw Data", "Summary"])
 
 with tab1:
     if gps.empty:
-        st.warning("GPS дані відсутні або не пройшли фільтрацію.")
+        st.warning("GPS data is missing or not filtered.")
     else:
         st.plotly_chart(build_3d_figure(gps), use_container_width=True)
 
@@ -175,13 +175,13 @@ with tab2:
     with d1:
         st.subheader("GPS table")
         if gps.empty:
-            st.write("Немає GPS.")
+            st.write("No GPS data.")
         else:
             st.dataframe(gps[["time_s", "lat_deg", "lon_deg", "alt_m", "speed_mps", "vz_mps", "east_m", "north_m", "up_m"]].round(4), use_container_width=True, height=360)
     with d2:
         st.subheader("IMU table")
         if imu.empty:
-            st.write("Немає IMU.")
+            st.write("No IMU data.")
         else:
             st.dataframe(imu[["time_s", "acc_x_mps2", "acc_y_mps2", "acc_z_mps2", "acc_lin_norm_mps2", "vel_est_norm_mps"]].round(4), use_container_width=True, height=360)
 
@@ -232,7 +232,7 @@ def analyze_flight_with_llm(metrics_dict):
     1. If acceleration > 30 m/s², this indicates a possible collision or a very hard landing. Flag this!
     2. If vertical velocity > 10 m/s, this may indicate a steep descent (spin).
     3. Draw a conclusion regarding the overall smoothness and safety of the flight.
-    4. Respond in Ukrainian, using a professional tone suitable for the general public.
+    4. Respond in English, using a professional tone suitable for the general public.
     """
 
     with st.spinner("AI analyzes..."):
