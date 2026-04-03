@@ -233,3 +233,4 @@ with c2:
         st.download_button("Download IMU CSV", data=imu.to_csv(index=False).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_imu.csv", mime="text/csv")
 with c3:
     st.download_button("Download Metrics JSON", data=json.dumps(metrics, ensure_ascii=False, indent=2).encode("utf-8"), file_name=f"{Path(uploaded.name).stem}_metrics.json", mime="application/json")
+#
