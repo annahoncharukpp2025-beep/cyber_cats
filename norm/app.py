@@ -128,20 +128,20 @@ st.markdown('''
 st.markdown('''
 <div class="hero">
     <h1>Drone Flight Analyzer</h1>
-    <p>Download the ArduPilot .BIN and get metrics, 3D trajectory, and neat graphs right away</p>
+    <p>Download the ArduPilot .BIN file  </p>
 </div>
 ''', unsafe_allow_html=True)
 
-uploaded = st.file_uploader("Upload ArduPilot .BIN", type=["bin", "BIN"])
+uploaded = st.file_uploader("", type=["bin", "BIN"])
 if uploaded is None:
-    st.info("Download the .BIN file to view the analysis.")
+    st.info("You'l get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
     st.stop()
 
 with tempfile.NamedTemporaryFile(delete=False, suffix=".BIN") as tmp:
     tmp.write(uploaded.getbuffer())
     temp_path = tmp.name
 
-with st.spinner("Обробляю телеметрію..."):
+with st.spinner("Procesing Data..."):
     result = process_bin_file(temp_path)
 
 gps = result["gps"]
@@ -149,15 +149,6 @@ imu = result["imu"]
 metrics = result["metrics"]
 gps_meta = result["gps_meta"]
 imu_meta = result["imu_meta"]
-
-st.markdown(
-    f'''
-    <div class="success-box">
-        Оброблено рядків → GPS: {gps_meta.get("gps_samples_valid", 0)} | IMU: {imu_meta.get("imu_samples_valid", 0)}
-    </div>
-    ''',
-    unsafe_allow_html=True,
-)
 
 st.markdown('<div class="section-title">Flight Metrics</div>', unsafe_allow_html=True)
 row1 = st.columns(3)
@@ -180,7 +171,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-tab1, tab2, tab3, tab4 = st.tabs(["3D Trajectory", "Flight Charts", "Raw Data", "Summary"])
+tab1, tab2, tab3 = st.tabs(["3D Trajectory", "Raw Data", "Summary"])
 
 with tab1:
     if gps.empty:
@@ -188,16 +179,8 @@ with tab1:
     else:
         st.plotly_chart(build_3d_figure(gps), use_container_width=True)
 
-with tab2:
-    c1, c2 = st.columns(2)
-    with c1:
-        if not gps.empty:
-            st.plotly_chart(build_alt_speed_figure(gps), use_container_width=True)
-    with c2:
-        if not imu.empty:
-            st.plotly_chart(build_imu_figure(imu), use_container_width=True)
 
-with tab3:
+with tab2:
     d1, d2 = st.columns(2)
     with d1:
         st.subheader("GPS table")
@@ -212,7 +195,7 @@ with tab3:
         else:
             st.dataframe(imu[["time_s", "acc_x_mps2", "acc_y_mps2", "acc_z_mps2", "acc_lin_norm_mps2", "vel_est_norm_mps"]].round(4), use_container_width=True, height=360)
 
-with tab4:
+with tab3:
     st.subheader("Automatic summary")
     st.write(make_summary_text(metrics, gps_meta, imu_meta))
     summary_payload = {"metrics": metrics, "gps_meta": gps_meta, "imu_meta": imu_meta}
