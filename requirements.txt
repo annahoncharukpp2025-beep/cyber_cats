@@ -1,0 +1,8 @@
+streamlit
+pymavlink
+pandas
+numpy
+plotly
+pyarrow
+tomlib
+google.generativeai
