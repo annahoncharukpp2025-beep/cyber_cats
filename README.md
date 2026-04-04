@@ -58,6 +58,11 @@ In the opened interface:
 
 ---
 
+## Why this stack was chosen
+
+This task required a stack that would allow a full working prototype to be implemented quickly: binary log parsing, numerical telemetry processing, chart generation, and web interface creation. Python is well suited for data analysis tasks, `pymavlink` provides access to ArduPilot logs, and `Streamlit + Plotly` make it possible to quickly create a convenient interface for demonstrating results.
+
+
 ## What the project does
 
 The system performs the following actions:
@@ -70,10 +75,6 @@ The system performs the following actions:
 - calculates total distance using haversine
 - estimates speed from IMU using trapezoidal integration
 - displays results in the form of metrics, charts, tables, and 3D visualization
-
-## Why this stack was chosen
-
-This task required a stack that would allow a full working prototype to be implemented quickly: binary log parsing, numerical telemetry processing, chart generation, and web interface creation. Python is well suited for data analysis tasks, `pymavlink` provides access to ArduPilot logs, and `Streamlit + Plotly` make it possible to quickly create a convenient interface for demonstrating results.
 
 ## Main metrics
 

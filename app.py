@@ -130,7 +130,7 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-uploaded = st.file_uploader("", type=["bin"])
+uploaded = st.file_uploader("", type=[".BIN"])
 if uploaded is None:
     st.info("You'll get metrics, 3D trajectory, tables with raw data and flight analysis by AI")
     st.stop()
